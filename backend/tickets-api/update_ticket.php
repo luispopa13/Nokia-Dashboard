@@ -1,0 +1,52 @@
+<?php
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+// === Fix pentru OPTIONS request ===
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+// Conexiune la baza de date
+$serverName = "DESKTOP-6LMVUCH"; 
+$connectionOptions = [
+    "Database" => "TicketsDB",
+    "TrustServerCertificate" => true,
+    "Encrypt" => false
+];
+
+$conn = sqlsrv_connect($serverName, $connectionOptions);
+
+if (!$conn) {
+    http_response_code(500);
+    echo json_encode(["error" => "Conexiunea la baza de date a eșuat"]);
+    exit();
+}
+
+// === Citim datele trimise prin POST (JSON) ===
+$data = json_decode(file_get_contents("php://input"), true);
+
+$id = $data['id'] ?? null;
+$status = $data['status'] ?? null;
+
+if (!$id || !$status) {
+    http_response_code(400);
+    echo json_encode(["error" => "ID-ul sau statusul lipsesc."]);
+    exit();
+}
+
+// === Update ticket ===
+$sql = "UPDATE tickets SET status = ? WHERE id = ?";
+$stmt = sqlsrv_query($conn, $sql, [$status, $id]);
+
+if ($stmt) {
+    echo json_encode(["success" => true]);
+} else {
+    http_response_code(500);
+    echo json_encode(["error" => "Eroare la actualizarea statusului."]);
+}
+
+sqlsrv_close($conn);
+?>
