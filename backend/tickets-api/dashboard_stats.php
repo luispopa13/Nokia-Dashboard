@@ -3,14 +3,14 @@ header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json');
 
 // Conectare
-$serverName = "DESKTOP-6LMVUCH"; 
-$connectionOptions = array(
+$serverName = "DESKTOP-6LMVUCH";
+$connectionOptions = [
     "Database" => "TicketsDB",
     "TrustServerCertificate" => true,
     "Encrypt" => false
-);
-
+];
 $conn = sqlsrv_connect($serverName, $connectionOptions);
+
 
 if (!$conn) {
     echo json_encode(["error" => "Conexiune eșuată"]);
@@ -67,9 +67,18 @@ SELECT
     FORMAT(t.start_date, 'yyyy-MM-dd HH:mm:ss') as start_date,
     p.priority AS priority_name,
     t.assigned_person,
-    FORMAT(t.last_modified_date, 'yyyy-MM-dd HH:mm:ss') as last_modified_date
+    t.description,
+    t.comment,
+    t.team_assigned_person,
+    t.team_created_by,
+    t.response_time,
+    t.created_by,
+    s.duration_hours,
+    FORMAT(t.last_modified_date, 'yyyy-MM-dd HH:mm:ss') as last_modified_date,
+    FORMAT(t.closed_date, 'yyyy-MM-dd HH:mm:ss') as closed_date
 FROM Tickets t
 JOIN Priority p ON t.priority_id = p.id
+JOIN SLA s ON s.id = t.priority_id
 WHERE $periodCondition
 ORDER BY t.start_date DESC
 ";
