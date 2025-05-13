@@ -19,6 +19,7 @@ $priority_id = $input['priority_id'] ?? '';
 $assigned_person = $input['assigned_person'] ?? '';
 $status = $input['status'] ?? 'Open'; // dacă nu e dat, implicit Open
 
+date_default_timezone_set('Europe/Bucharest');
 $now = date('Y-m-d H:i:s');
 
 if (!$incident_title || !$project || !$priority_id) {
