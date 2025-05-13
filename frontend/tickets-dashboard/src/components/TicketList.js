@@ -183,67 +183,7 @@ export default function TicketList({ tickets, onDelete, onAdd }) {
         </div>
       )}
 
-      {/* Lista Tickete */}
-      {/* <div className="grid grid-cols-1 gap-6">
-        {filteredTickets.map((ticket) => (
-          <div
-            key={ticket.id}
-            className={`p-6 rounded-lg shadow transition-transform transform hover:scale-[1.01] ${
-              ticket.priority_name === "Critical"
-                ? "bg-red-200 dark:bg-red-700"
-                : ticket.priority_name === "High"
-                ? "bg-orange-200 dark:bg-orange-700"
-                : ticket.priority_name === "Medium"
-                ? "bg-yellow-200 dark:bg-yellow-700"
-                : "bg-green-200 dark:bg-green-700"
-            }`}
-          >
-            <div className="flex justify-between items-center">
-              <div>
-                <h2 className="text-lg font-bold text-gray-800 dark:text-white">
-                  #{ticket.id} - {ticket.incident_title}
-                </h2>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Status: <span className="font-semibold">{ticket.status}</span>
-                </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Prioritate: {ticket.priority_name} | Proiect: {ticket.project}
-                </p>
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  onClick={() => toggleExpand(ticket.id)}
-                  className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
-                >
-                  {expandedTicket === ticket.id ? "Ascunde" : "Detalii+"}
-                </button>
-
-                {role === "superuser" && onDelete && (
-                  <button
-                    onClick={() => onDelete(ticket.id)}
-                    className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
-                  >
-                    Șterge
-                  </button>
-                )}
-              </div>
-            </div>
-
-            
-            {expandedTicket === ticket.id && (
-              <div className="mt-4 bg-white dark:bg-gray-800 p-4 rounded">
-                <p className="text-gray-600 dark:text-gray-300"><b>Start Date:</b> {ticket.start_date}</p>
-                <p className="text-gray-600 dark:text-gray-300"><b>Proiect:</b> {ticket.project}</p>
-                <p className="text-gray-600 dark:text-gray-300"><b>Assigned:</b> {ticket.assigned_person || "Neasignat"}</p>
-                <p className="text-gray-600 dark:text-gray-300"><b>Last Modified:</b> {ticket.last_modified_date || "N/A"}</p>
-              </div>
-            )}
-          </div>
-        ))}
-      </div> */}
-
-      <div className="overflow-x-auto">
+      {/* <div className="overflow-x-auto">
         <table className="min-w-full bg-white dark:bg-gray-800 shadow rounded-lg">
           <thead>
             <tr className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-left text-sm uppercase">
@@ -311,7 +251,92 @@ export default function TicketList({ tickets, onDelete, onAdd }) {
           </tbody>
         </table>
 
-        {/* PAGINATION */}
+      
+        <div className="flex justify-center mt-4 gap-2">
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentPage(i + 1)}
+              className={`px-3 py-1 rounded ${currentPage === i + 1
+                ? "bg-blue-600 text-white"
+                : "bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white hover:bg-gray-400"
+                }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
+      </div> */}
+
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white dark:bg-gray-800 shadow rounded-lg">
+          <thead>
+            <tr className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-left text-sm uppercase">
+              <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">ID</th>
+              <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Incident</th>
+              <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Status</th>
+              <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Prioritate</th>
+              <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">SLA</th>
+              <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Proiect</th>
+              <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Start Date</th>
+              
+              <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Last Modified</th>
+              <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Closed Date</th>
+              <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Description</th>
+              <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Comment</th>
+              <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Assigned</th>
+              <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Team Assigned</th>
+               <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Created By</th>
+              <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Team Created By</th>
+              <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Response Time</th>
+              {role === "superuser" && onDelete && (
+                <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Actions</th>
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {currentTickets.map((ticket) => (
+              <tr key={ticket.id} className="text-gray-700 dark:text-gray-200">
+                <td className="px-4 py-2 border dark:border-gray-600 bg-white dark:bg-gray-800 font-semibold">#{ticket.id}</td>
+                <td className="px-4 py-2 border dark:border-gray-600 bg-white dark:bg-gray-800">{ticket.incident_title}</td>
+                <td className="px-4 py-2 border dark:border-gray-600 bg-white dark:bg-gray-800">{ticket.status}</td>
+                <td className={`px-4 py-2 border dark:border-gray-600 font-medium ${ticket.priority_name === "Critical"
+                  ? "bg-red-200 dark:bg-red-700"
+                  : ticket.priority_name === "High"
+                    ? "bg-orange-200 dark:bg-orange-700"
+                    : ticket.priority_name === "Medium"
+                      ? "bg-yellow-200 dark:bg-yellow-700"
+                      : "bg-green-200 dark:bg-green-700"
+                  }`}>{ticket.priority_name}</td>
+                  <td className="px-4 py-2 border dark:border-gray-600 bg-white dark:bg-gray-800">{ticket.duration_hours}</td>
+                <td className="px-4 py-2 border dark:border-gray-600 bg-white dark:bg-gray-800">{ticket.project}</td>
+                <td className="px-4 py-2 border dark:border-gray-600 bg-white dark:bg-gray-800">{ticket.start_date}</td>
+                <td className="px-4 py-2 border dark:border-gray-600 bg-white dark:bg-gray-800">{ticket.last_modified_date || "N/A"}</td>
+                <td className="px-4 py-2 border dark:border-gray-600 bg-white dark:bg-gray-800">{ticket.closed_date || "N/A"}</td>
+                <td className="px-4 py-2 border dark:border-gray-600 bg-white dark:bg-gray-800">{ticket.description || "-"}</td>
+                <td className="px-4 py-2 border dark:border-gray-600 bg-white dark:bg-gray-800">{ticket.comment || "-"}</td>
+                <td className="px-4 py-2 border dark:border-gray-600 bg-white dark:bg-gray-800">{ticket.assigned_person || "Neasignat"}</td>
+                <td className="px-4 py-2 border dark:border-gray-600 bg-white dark:bg-gray-800">{ticket.team_assigned_person || "-"}</td>
+                <td className="px-4 py-2 border dark:border-gray-600 bg-white dark:bg-gray-800">{ticket.created_by || "-"}</td>
+                <td className="px-4 py-2 border dark:border-gray-600 bg-white dark:bg-gray-800">{ticket.team_created_by || "-"}</td>
+                <td className="px-4 py-2 border dark:border-gray-600 bg-white dark:bg-gray-800">{ticket.response_time || "-"}</td>
+                {role === "superuser" && onDelete && (
+                  <td className="px-4 py-2 border dark:border-gray-600 bg-white dark:bg-gray-800">
+                    <button
+                      onClick={() => onDelete(ticket.id)}
+                      className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+                    >
+                      Șterge
+                    </button>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* Pagination buttons */}
         <div className="flex justify-center mt-4 gap-2">
           {Array.from({ length: totalPages }, (_, i) => (
             <button
