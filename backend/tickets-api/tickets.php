@@ -3,13 +3,14 @@ header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json');
 
 // Conectare SQL
-$connectionOptions = array(
+$serverName = "DESKTOP-6LMVUCH";
+$connectionOptions = [
     "Database" => "TicketsDB",
     "TrustServerCertificate" => true,
     "Encrypt" => false
-);
-$serverName = "DESKTOP-6LMVUCH";
+];
 $conn = sqlsrv_connect($serverName, $connectionOptions);
+
 
 if (!$conn) {
     echo json_encode(["error" => "Conexiune eșuată"]);
@@ -26,11 +27,12 @@ if ($status) {
 
 $sql = "
 SELECT 
-    t.id, t.incident_title, t.status, t.project,
+    t.id, t.incident_title, t.status, t.project, t.description, t.comment, t.assigned_person, t.team_assigned_person, t.created_by, t.team_created_by, t.response_time, s.duration_hours,
     FORMAT(t.start_date, 'yyyy-MM-dd HH:mm:ss') as start_date,
     p.priority AS priority_name
 FROM Tickets t
 JOIN Priority p ON t.priority_id = p.id
+JOIN SLA s ON s.id = t.priority_id
 $whereClause
 ORDER BY t.start_date DESC
 ";
