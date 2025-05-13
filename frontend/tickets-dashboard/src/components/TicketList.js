@@ -15,12 +15,6 @@ export default function TicketList({ tickets, onDelete, onAdd }) {
     assigned_person: ""
   });
 
-  const role = localStorage.getItem("role");
-
-  const toggleExpand = (ticketId) => {
-    setExpandedTicket(expandedTicket === ticketId ? null : ticketId);
-  };
-
   const filteredTickets = tickets.filter((t) => {
     const searchMatch =
       filters.search === "" ||
@@ -31,6 +25,22 @@ export default function TicketList({ tickets, onDelete, onAdd }) {
     const projectMatch = filters.project === "" || (t.project && t.project.toLowerCase().includes(filters.project.toLowerCase()));
     return searchMatch && priorityMatch && statusMatch && projectMatch;
   });
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const ticketsPerPage = 10;
+
+  const indexOfLastTicket = currentPage * ticketsPerPage;
+  const indexOfFirstTicket = indexOfLastTicket - ticketsPerPage;
+  const currentTickets = filteredTickets.slice(indexOfFirstTicket, indexOfLastTicket);
+  const totalPages = Math.ceil(filteredTickets.length / ticketsPerPage);
+
+  const role = localStorage.getItem("role");
+
+  const toggleExpand = (ticketId) => {
+    setExpandedTicket(expandedTicket === ticketId ? null : ticketId);
+  };
+
+
 
   const handleAddTicket = (e) => {
     e.preventDefault();
@@ -49,7 +59,7 @@ export default function TicketList({ tickets, onDelete, onAdd }) {
 
   return (
     <div className="space-y-8">
-      
+
       {/* Filtrare Avansată */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-8">
         <h2 className="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">
@@ -174,7 +184,7 @@ export default function TicketList({ tickets, onDelete, onAdd }) {
       )}
 
       {/* Lista Tickete */}
-      <div className="grid grid-cols-1 gap-6">
+      {/* <div className="grid grid-cols-1 gap-6">
         {filteredTickets.map((ticket) => (
           <div
             key={ticket.id}
@@ -220,7 +230,7 @@ export default function TicketList({ tickets, onDelete, onAdd }) {
               </div>
             </div>
 
-            {/* Informații suplimentare */}
+            
             {expandedTicket === ticket.id && (
               <div className="mt-4 bg-white dark:bg-gray-800 p-4 rounded">
                 <p className="text-gray-600 dark:text-gray-300"><b>Start Date:</b> {ticket.start_date}</p>
@@ -231,7 +241,97 @@ export default function TicketList({ tickets, onDelete, onAdd }) {
             )}
           </div>
         ))}
+      </div> */}
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white dark:bg-gray-800 shadow rounded-lg">
+          <thead>
+            <tr className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-left text-sm uppercase">
+              <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">ID</th>
+              <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Incident</th>
+              <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Status</th>
+              <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Prioritate</th>
+              <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Proiect</th>
+              <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Start Date</th>
+              <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Assigned</th>
+              <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Last Modified</th>
+              {role === "superuser" && onDelete && (
+                <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Actions</th>
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {currentTickets.map((ticket) => (
+              <tr key={ticket.id} className="text-gray-700 dark:text-gray-200">
+                <td className="px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 font-semibold">
+                  #{ticket.id}
+                </td>
+                <td className="px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800">
+                  {ticket.incident_title}
+                </td>
+                <td className="px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800">
+                  {ticket.status}
+                </td>
+                <td
+                  className={`px-4 py-2 border border-gray-300 dark:border-gray-600 font-medium ${ticket.priority_name === "Critical"
+                    ? "bg-red-200 dark:bg-red-700"
+                    : ticket.priority_name === "High"
+                      ? "bg-orange-200 dark:bg-orange-700"
+                      : ticket.priority_name === "Medium"
+                        ? "bg-yellow-200 dark:bg-yellow-700"
+                        : "bg-green-200 dark:bg-green-700"
+                    }`}
+                >
+                  {ticket.priority_name}
+                </td>
+                <td className="px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800">
+                  {ticket.project}
+                </td>
+                <td className="px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800">
+                  {ticket.start_date}
+                </td>
+                <td className="px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800">
+                  {ticket.assigned_person || "Neasignat"}
+                </td>
+                <td className="px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800">
+                  {ticket.last_modified_date || "N/A"}
+                </td>
+                {role === "superuser" && onDelete && (
+                  <td className="px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800">
+                    <button
+                      onClick={() => onDelete(ticket.id)}
+                      className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+                    >
+                      Șterge
+                    </button>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* PAGINATION */}
+        <div className="flex justify-center mt-4 gap-2">
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentPage(i + 1)}
+              className={`px-3 py-1 rounded ${currentPage === i + 1
+                ? "bg-blue-600 text-white"
+                : "bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white hover:bg-gray-400"
+                }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
       </div>
+
+
+
+
+
     </div>
   );
 }
