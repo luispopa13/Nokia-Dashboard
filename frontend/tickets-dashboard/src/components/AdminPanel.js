@@ -13,6 +13,7 @@ export default function AdminPanel() {
     assigned_person: ""
   });
 
+
   const [filters, setFilters] = useState({
     search: "",
     priority: "",
@@ -20,6 +21,25 @@ export default function AdminPanel() {
     project: "",
     assigned_person: ""
   });
+  const filteredTickets = tickets.filter((t) => {
+    const term = filters.search.toLowerCase();
+    return (
+      (filters.search === "" ||
+        t.incident_title?.toLowerCase().includes(term) ||
+        t.id?.toString().includes(term)) &&
+      (filters.priority === "" || t.priority_name === filters.priority) &&
+      (filters.status === "" || t.status === filters.status) &&
+      (filters.project === "" || t.project?.toLowerCase().includes(filters.project.toLowerCase())) &&
+      (filters.assigned_person === "" || t.assigned_person?.toLowerCase().includes(filters.assigned_person.toLowerCase()))
+    );
+  });
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const ticketsPerPage = 10;
+
+  const indexOfLastTicket = currentPage * ticketsPerPage;
+  const indexOfFirstTicket = indexOfLastTicket - ticketsPerPage;
+  const currentTickets = filteredTickets.slice(indexOfFirstTicket, indexOfLastTicket);
 
   const [visibleCount, setVisibleCount] = useState(20);
   const role = localStorage.getItem("role");
@@ -113,18 +133,7 @@ export default function AdminPanel() {
       });
   };
 
-  const filteredTickets = tickets.filter((t) => {
-    const term = filters.search.toLowerCase();
-    return (
-      (filters.search === "" ||
-        t.incident_title?.toLowerCase().includes(term) ||
-        t.id?.toString().includes(term)) &&
-      (filters.priority === "" || t.priority_name === filters.priority) &&
-      (filters.status === "" || t.status === filters.status) &&
-      (filters.project === "" || t.project?.toLowerCase().includes(filters.project.toLowerCase())) &&
-      (filters.assigned_person === "" || t.assigned_person?.toLowerCase().includes(filters.assigned_person.toLowerCase()))
-    );
-  });
+
 
   return (
     <div className="p-6">
@@ -188,58 +197,93 @@ export default function AdminPanel() {
         </div>
       </div>
 
-      {/* Lista Tickete */}
       {loading ? (
         <p className="text-center text-gray-400">Se încarcă ticketele...</p>
       ) : filteredTickets.length > 0 ? (
         <>
-          <div className="space-y-6">
-            {filteredTickets.slice(0, visibleCount).map((ticket) => (
-              <div key={ticket.id} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow flex flex-col gap-2">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300">
-                      #{ticket.id} - {ticket.incident_title}
-                    </h2>
-                    <p className="text-gray-500 dark:text-gray-400">
-                      Status: <b>{ticket.status}</b> | Proiect: <b>{ticket.project}</b>
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setSelectedTicket(ticket)}
-                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white dark:bg-gray-800 shadow rounded-lg">
+              <thead>
+                <tr className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-left text-sm uppercase">
+                  <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">ID</th>
+                  <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Incident</th>
+                  <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Status</th>
+                  <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Priority</th>
+                  <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Project</th>
+                  <th className="px-4 py-2 border border-gray-300 dark:border-gray-600">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentTickets.map((ticket) => (
+                  <tr key={ticket.id} className="text-gray-700 dark:text-gray-200">
+                    <td className="px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 font-semibold">
+                      #{ticket.id}
+                    </td>
+                    <td className="px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800">
+                      {ticket.incident_title}
+                    </td>
+                    <td className="px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800">
+                      {ticket.status}
+                    </td>
+                    <td
+                      className={`px-4 py-2 border border-gray-300 dark:border-gray-600 font-medium ${ticket.priority_name === "Critical"
+                        ? "bg-red-200 dark:bg-red-700"
+                        : ticket.priority_name === "High"
+                          ? "bg-orange-200 dark:bg-orange-700"
+                          : ticket.priority_name === "Medium"
+                            ? "bg-yellow-200 dark:bg-yellow-700"
+                            : "bg-green-200 dark:bg-green-700"
+                        }`}
                     >
-                      Modifică Status
-                    </button>
-                    {role === "superuser" && (
-                      <button
-                        onClick={() => handleDeleteTicket(ticket.id)}
-                        className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                      >
-                        Șterge
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
+                      {ticket.priority_name}
+                    </td>
+                    <td className="px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800">
+                      {ticket.project}
+                    </td>
+                    <td className="px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800">
+                      <div className="flex gap-2 flex-wrap">
+                        <button
+                          onClick={() => setSelectedTicket(ticket)}
+                          className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                        >
+                          Update Status
+                        </button>
+                        {role === "superuser" && (
+                          <button
+                            onClick={() => handleDeleteTicket(ticket.id)}
+                            className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
 
-          {visibleCount < filteredTickets.length && (
-            <div className="flex justify-center mt-8">
+          {/* PAGINATION */}
+          <div className="flex justify-center mt-6 gap-2 flex-wrap">
+            {Array.from({ length: Math.ceil(filteredTickets.length / ticketsPerPage) }, (_, i) => (
               <button
-                onClick={() => setVisibleCount((prev) => prev + 20)}
-                className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                key={i}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`px-3 py-1 rounded text-sm ${currentPage === i + 1
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white hover:bg-gray-400"
+                  }`}
               >
-                Afișează mai multe
+                {i + 1}
               </button>
-            </div>
-          )}
+            ))}
+          </div>
         </>
       ) : (
         <p className="text-center text-gray-400">Nu există tickete filtrate.</p>
       )}
+
 
       {/* Modal Modificare Status */}
       {selectedTicket && (
