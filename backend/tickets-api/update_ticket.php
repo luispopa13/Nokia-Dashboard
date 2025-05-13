@@ -38,8 +38,11 @@ if (!$id || !$status) {
 }
 
 // === Update ticket ===
-$sql = "UPDATE tickets SET status = ? WHERE id = ?";
-$stmt = sqlsrv_query($conn, $sql, [$status, $id]);
+date_default_timezone_set('Europe/Bucharest');
+$now = date('Y-m-d H:i:s');
+
+$sql = "UPDATE tickets SET status = ?, last_modified_date = ? WHERE id = ?";
+$stmt = sqlsrv_query($conn, $sql, [$status, $now, $id]);
 
 if ($stmt) {
     echo json_encode(["success" => true]);
