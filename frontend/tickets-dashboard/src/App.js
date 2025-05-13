@@ -39,28 +39,26 @@ export default function App() {
       <div className="relative flex justify-center gap-4 py-6 bg-white dark:bg-gray-800 shadow">
         <button
           onClick={() => setActiveTab("dashboard")}
-          className={`px-6 py-2 rounded ${
-            activeTab === "dashboard" ? "bg-blue-600 text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-          }`}
+          className={`px-6 py-2 rounded ${activeTab === "dashboard" ? "bg-blue-600 text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+            }`}
         >
           Dashboard
         </button>
+
         <button
-          onClick={() => setActiveTab("history")}
-          className={`px-6 py-2 rounded ${
-            activeTab === "history" ? "bg-blue-600 text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-          }`}
+          onClick={() => setActiveTab("statistics")}
+          className={`px-6 py-2 rounded ${activeTab === "statistics" ? "bg-blue-600 text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+            }`}
         >
-          Istoric
+          Statistics
         </button>
 
         {/* Dacă este admin sau superuser, afișează Admin Panel */}
         {(role === "admin" || role === "superuser") && (
           <button
             onClick={() => setActiveTab("adminpanel")}
-            className={`px-6 py-2 rounded ${
-              activeTab === "adminpanel" ? "bg-blue-600 text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-            }`}
+            className={`px-6 py-2 rounded ${activeTab === "adminpanel" ? "bg-blue-600 text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+              }`}
           >
             Admin Panel
           </button>
@@ -80,8 +78,8 @@ export default function App() {
 
       {/* Afișează tab-ul activ */}
       {activeTab === "dashboard" && <Dashboard />}
-      {activeTab === "history" && <History />}
       {activeTab === "adminpanel" && <AdminPanel />}
+      {activeTab === "statistics" && <Statistics />}
     </div>
   );
 }
